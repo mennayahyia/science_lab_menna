@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>خريطة مغامرات مختبر العلوم</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Tajawal', sans-serif; }
+    .map-screen {
+      position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column;
+      justify-content: space-between; align-items: center; padding: 20px 20px 40px 20px;
+      background: url('https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTMXHZpH60gq6z5afijeqol3aNny0H-XmG6dNM7sKCfLLS8rzVbzzGiuCtlv0MPSft34BaN7iYfMASbAY0') center/cover no-repeat;
+    }
+    .map-header { text-align: center; z-index: 10; background: rgba(15, 23, 42, 0.9); padding: 12px 30px; border-radius: 25px; border: 4px solid #38bdf8; box-shadow: 0 8px 25px rgba(0,0,0,0.6); margin-top: 15px; }
+    .map-header h1 { color: #38bdf8; font-size: 2rem; font-weight: 900; margin-bottom: 3px; }
+    .map-header p { color: #f8fafc; font-size: 1.05rem; font-weight: 700; }
+    .path-container { display: flex; justify-content: center; align-items: center; gap: 25px; width: 100%; max-width: 1100px; z-index: 10; margin: auto 0; }
+    .level-node { display: flex; flex-direction: column; align-items: center; position: relative; transition: all 0.3s ease; }
+    .node-box { width: 130px; height: 130px; border: 6px solid #fff; border-radius: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.6); transition: all 0.3s ease; position: relative; z-index: 5; }
+    .level-node.unlocked .node-box:hover { transform: scale(1.1) rotate(3deg); border-color: #facc15; box-shadow: 0 15px 35px rgba(250, 204, 21, 0.5); }
+    .level-node.locked .node-box { background: linear-gradient(135deg, #64748b 0%, #475569 100%) !important; border-color: #94a3b8; cursor: not-allowed; opacity: 0.85; }
+    .node-number { font-size: 2rem; font-weight: 900; color: #fff; }
+    .node-icon { font-size: 1.6rem; margin-top: 2px; }
+    .node-title-card { margin-top: 12px; background: rgba(15, 23, 42, 0.95); border: 3px solid #38bdf8; padding: 8px 12px; border-radius: 18px; text-align: center; width: 170px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 5; }
+    .level-node.locked .node-title-card { border-color: #64748b; }
+    .node-title-card h4 { color: #f8fafc; font-size: 0.9rem; font-weight: 900; margin-bottom: 2px; }
+    .node-title-card span { color: #38bdf8; font-size: 0.78rem; font-weight: 700; }
+    .level-node.locked .node-title-card span { color: #ef4444; }
+    .path-line { width: 40px; height: 8px; background: #38bdf8; border-radius: 4px; margin-left: -20px; margin-right: -20px; z-index: 4; }
+    .path-line.locked-line { background: #475569; }
+    .footer-note { color: #f8fafc; font-size: 1.05rem; font-weight: 900; z-index: 10; background: rgba(15, 23, 42, 0.9); padding: 10px 25px; border-radius: 20px; border: 3px solid #38bdf8; margin-bottom: 10px; }
+/* زر الأفاتار الدائري */
+.player-avatar-button {
+    position: fixed;
+  top: 25px;
+  right: 25px;
+  bottom: auto;
+  z-index: 100;
+  width: 76px;
+  height: 76px;
+  padding: 4px;
+  border: 4px solid #38bdf8;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e3a8a, #0f172a);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.65);
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.player-avatar-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 28px rgba(56, 189, 248, 0.9);
+}
+
+.player-avatar-button img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+/* بطاقة بيانات اللاعب */
+.player-profile-card {
+  position: fixed;
+  top: 25px;
+  right: 80px;
+  bottom: auto;
+  z-index: 100;
+  width: 230px;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.97);
+  border: 3px solid #38bdf8;
+  border-radius: 24px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: profileAppear 0.25s ease-out;
+}
+
+.player-profile-card.visible {
+  display: flex;
+}
+
+.player-profile-image {
+  width: 105px;
+  height: 105px;
+  object-fit: contain;
+  border: 3px solid #fbbf24;
+  border-radius: 50%;
+  background: #1e293b;
+}
+
+.player-profile-name {
+  color: #fbbf24;
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.player-profile-label {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+@keyframes profileAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+@media (max-width: 600px) {
+  .player-avatar-button {
+    width: 62px;
+    height: 62px;
+    top: 15px;
+    right: 15px;
+    bottom: auto;
+  }
+
+  .player-profile-card {
+    top: 85px;
+    right: 15px;
+    bottom: auto;
+    width: 205px;
+  }
+}
+
+ </style>
+</head>
+<body>
+
+  <div class="map-screen">
+
+<!-- زر الأفاتار -->
+<button
+  class="player-avatar-button"
+  id="playerAvatarButton"
+ onclick="goToCharacterSelection()"
+  aria-label="عرض بيانات اللاعب"
+  aria-expanded="false"
+>
+  <img id="mapPlayerAvatar" src="images/girl_lab.png" alt="شخصية اللاعب">
+</button>
+
+<!-- بطاقة بيانات اللاعب -->
+<div class="player-profile-card" id="playerProfileCard">
+  <img
+    class="player-profile-image"
+    id="profilePlayerImage"
+    src="images/girl_lab.png"
+    alt="صورة اللاعب"
+  >
+
+  <div class="player-profile-label">🧪 محقق العلوم</div>
+  <div class="player-profile-name" id="profilePlayerName">بطل المختبر</div>
+</div>
+
+    <div class="map-header">
+      <h1>🗺️ خريطة مغامرات مختبر العلوم</h1>
+      <p>أهلاً بك يا <span id="playerNameDisplay" style="color:#f59e0b;">بطل</span>! اختر المستوى لتبدأ التحدي:</p>
+    </div>
+
+    <div class="path-container">
+      <div class="level-node unlocked" id="node1" onclick="startLevel(1)">
+        <div class="node-box" style="background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);">
+          <div class="node-number">١</div>
+          <div class="node-icon">💪</div>
+        </div>
+        <div class="node-title-card">
+          <h4>العظام والعضلات</h4>
+          <span style="color:#22c55e;">🔓 متاح للعب</span>
+        </div>
+      </div>
+
+      <div class="path-line" id="line1"></div>
+
+      <div class="level-node locked" id="node2" onclick="startLevel(2)">
+        <div class="node-box" id="box2" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+          <div class="node-number">٢</div>
+          <div class="node-icon" id="icon2">🔒</div>
+        </div>
+        <div class="node-title-card">
+          <h4>تركيب العظام والمفاصل</h4>
+          <span id="text2">🔒 مغلق</span>
+        </div>
+      </div>
+
+      <div class="path-line locked-line" id="line2"></div>
+
+      <div class="level-node locked" id="node3" onclick="startLevel(3)">
+        <div class="node-box" id="box3" style="background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);">
+          <div class="node-number">٣</div>
+          <div class="node-icon" id="icon3">🔒</div>
+        </div>
+        <div class="node-title-card">
+          <h4>انقباض وانبساط العضلات</h4>
+          <span id="text3">🔒 مغلق</span>
+        </div>
+      </div>
+
+      <div class="path-line locked-line" id="line3"></div>
+
+      <div class="level-node locked" id="node4" onclick="startLevel(4)">
+        <div class="node-box" id="box4" style="background: linear-gradient(135deg, #f97316 0%, #c2410c 100%);">
+          <div class="node-number">٤</div>
+          <div class="node-icon" id="icon4">🔒</div>
+        </div>
+        <div class="node-title-card">
+          <h4>هياكل الحيوانات وحركتها</h4>
+          <span id="text4">🔒 مغلق</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">🌟 أكمل كل مستوى لفتح المستوى التالي وتجنب خطر انقطاع التيار الكهربائي!</div>
+  </div>
+
+  <script>
+
+
+const avatarButton = document.getElementById('playerAvatarButton');
+const profileCard = document.getElementById('playerProfileCard');
+
+avatarButton.addEventListener('mouseenter', () => {
+  profileCard.classList.add('visible');
+});
+
+avatarButton.addEventListener('mouseleave', (event) => {
+  if (!profileCard.contains(event.relatedTarget)) {
+    profileCard.classList.remove('visible');
+  }
+});
+
+profileCard.addEventListener('mouseenter', () => {
+  profileCard.classList.add('visible');
+});
+
+profileCard.addEventListener('mouseleave', () => {
+  profileCard.classList.remove('visible');
+});
+
+function goToCharacterSelection() {
+  window.location.href = 'character.html.html';
+}
+
+    window.onload = function() {
+
+
+const savedName = localStorage.getItem('playerName');
+const savedImage = localStorage.getItem('playerImage');
+
+const mapAvatar = document.getElementById('mapPlayerAvatar');
+const profileImage = document.getElementById('profilePlayerImage');
+const profileName = document.getElementById('profilePlayerName');
+const nameDisplay = document.getElementById('playerNameDisplay');
+
+if (savedImage) {
+  mapAvatar.src = savedImage;
+  profileImage.src = savedImage;
+}
+
+profileName.textContent = savedName || 'بطل المختبر';
+
+if (savedName) {
+  nameDisplay.textContent = savedName;
+}
+
+      // قراءة المستوى المفتوح
+      const unlockedLevel = parseInt(localStorage.getItem('unlockedLevel') || 1);
+
+      for (let i = 2; i <= 4; i++) {
+        if (i <= unlockedLevel) {
+          const node = document.getElementById('node' + i);
+          node.classList.remove('locked');
+          node.classList.add('unlocked');
+          document.getElementById('icon' + i).textContent = "🔓";
+          document.getElementById('text' + i).textContent = "🔓 متاح للعب";
+          document.getElementById('text' + i).style.color = "#22c55e";
+          document.getElementById('line' + (i - 1)).classList.remove('locked-line');
+        }
+      }
+    };
+
+
+function startLevel(levelNum) {
+  const unlockedLevel = parseInt(
+    localStorage.getItem('unlockedLevel') || '1',
+    10
+  );
+
+  if (levelNum <= unlockedLevel) {
+    localStorage.setItem('currentLevel', String(levelNum));
+
+    window.location.href = new URL(
+      'science_lab.html.html',
+      window.location.href
+    ).href;
+  } else {
+    alert("🔒 هذا المستوى مغلق! أكمل المستوى السابق أولاً.");
+  }
+}
+
+  </script>
+</body>
+</html>

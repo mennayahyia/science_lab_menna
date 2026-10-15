@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رحلة في مختبر العلوم - تخصيص الشخصية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    .screen-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px 25px 20px;
+      background: linear-gradient(rgba(15, 23, 42, 0.35), rgba(15, 23, 42, 0.55)),
+                  url('https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTMXHZpH60gq6z5afijeqol3aNny0H-XmG6dNM7sKCfLLS8rzVbzzGiuCtlv0MPSft34BaN7iYfMASbAY0') center/cover no-repeat;
+    }
+
+    .top-panel {
+      z-index: 20;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      background: rgba(30, 41, 59, 0.95);
+      border: 4px solid #38bdf8;
+      border-radius: 30px;
+      padding: 8px 25px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    .name-input {
+      background: #0f172a;
+      border: 3px solid #38bdf8;
+      border-radius: 20px;
+      color: #fff;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 5px 18px;
+      text-align: center;
+      outline: none;
+      width: 170px;
+    }
+
+    .gender-btn {
+      background: #334155;
+      border: 3px solid #64748b;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 6px 18px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .gender-btn.active {
+      background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+      border-color: #e0f2fe;
+      box-shadow: 0 4px 0 #0369a1;
+    }
+
+    .character-stage {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 5;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    /* كارت الاسم مع مسافة فاصلة مريحة */
+    .player-nametag {
+      background: #f59e0b;
+      color: #fff;
+      border: 3px solid #fff;
+      font-size: 1.4rem;
+      font-weight: 900;
+      padding: 5px 25px;
+      border-radius: 20px;
+      box-shadow: 0 6px 0 #d97706, 0 10px 15px rgba(0,0,0,0.4);
+      text-shadow: 1px 1px 0 #b45309;
+      margin-bottom: 20px; 
+    }
+
+    .character-preview-box {
+      width: 220px;
+      height: 290px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+      animation: idleMove 3s infinite ease-in-out;
+    }
+
+    .character-preview-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .podium {
+      width: 230px;
+      height: 30px;
+      background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.9) 0%, rgba(14, 165, 233, 0.2) 70%, transparent 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 30px #38bdf8;
+      margin-top: -5px;
+    }
+
+    .bottom-dock {
+      z-index: 10;
+      width: 92%;
+      max-width: 780px;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border: 5px solid #475569;
+      border-radius: 35px;
+      padding: 15px 25px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .section-title {
+      color: #38bdf8;
+      font-weight: 900;
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .options-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .option-btn {
+      background: #334155;
+      border: 3px solid #64748b;
+      color: #fff;
+      font-weight: 900;
+      padding: 8px 20px;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    .option-btn:hover, .option-btn.active {
+      background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+      border-color: #e0f2fe;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-confirm {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 900;
+      padding: 10px 50px;
+      border: 4px solid #bbf7d0;
+      border-radius: 40px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #14532d, 0 12px 20px rgba(0,0,0,0.4);
+      transition: all 0.1s;
+      margin-top: 5px;
+    }
+
+    .btn-confirm:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+    }
+
+    @keyframes idleMove {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-container">
+    <div class="top-panel">
+      <input type="text" id="nameInput" class="name-input" placeholder="اكتب اسمك..." value="الاسم" oninput="updateName()">
+      <div style="display:flex; gap:8px;">
+        <button class="gender-btn" id="boyBtn" onclick="setGender('boy')">ولد 👦</button>
+        <button class="gender-btn active" id="girlBtn" onclick="setGender('girl')">بنت 👧</button>
+      </div>
+    </div>
+
+    <div class="character-stage">
+      <div class="player-nametag" id="nametag">الاسم</div>
+      
+      <div class="character-preview-box">
+        <img id="avatarImg" src="Gemini_Generated_Image_ita8wgita8wgita8.jpg" alt="Character">
+      </div>
+      
+      <div class="podium"></div>
+    </div>
+
+    <div class="bottom-dock">
+      <div style="width: 100%;">
+        <div class="section-title">اختر زي الشخصية المفضل:</div>
+        <div class="options-group">
+          <button class="option-btn active" id="outfitLab" onclick="setOutfit('lab')">🥼 عالم (بالطو)</button>
+          <button class="option-btn" id="outfitExp" onclick="setOutfit('explorer')">🧭 مستكشف</button>
+          <button class="option-btn" id="outfitNormal" onclick="setOutfit('normal')">👕 زي عادي</button>
+        </div>
+      </div>
+
+      <button class="btn-confirm" onclick="enterLab()">تأكيد ودخول المعمل 🚀</button>
+    </div>
+  </div>
+
+  <script>
+    const characterAssets = {
+      girl: {
+            lab: "images/girl_lab.png",      // بنت عالمة
+        explorer: "images/girl_explorer.png",  // بنت مستكشفة
+        normal: "images/girl_normal.png"     // بنت زي عادي
+      },
+      boy: {
+        lab: "images/boy_lab.png",      // ولد عالم
+        explorer: "images/boy_explorer.png",  // ولد مستكشف
+        normal: "images/boy_normal.png"     // ولد زي عادي   
+      }
+    };
+
+    let currentGender = 'girl';
+    let currentOutfit = 'lab';
+
+    function updateCharacterView() {
+      const img = document.getElementById('avatarImg');
+      img.src = characterAssets[currentGender][currentOutfit];
+    }
+
+    function setGender(gender) {
+      currentGender = gender;
+      document.getElementById('boyBtn').classList.toggle('active', gender === 'boy');
+      document.getElementById('girlBtn').classList.toggle('active', gender === 'girl');
+      updateCharacterView();
+    }
+
+    function setOutfit(outfitType) {
+      currentOutfit = outfitType;
+      document.getElementById('outfitLab').classList.toggle('active', outfitType === 'lab');
+      document.getElementById('outfitExp').classList.toggle('active', outfitType === 'explorer');
+      document.getElementById('outfitNormal').classList.toggle('active', outfitType === 'normal');
+      updateCharacterView();
+    }
+
+    function updateName() {
+      const name = document.getElementById('nameInput').value;
+      document.getElementById('nametag').textContent = name.trim() ? name : "البطل";
+    }
+
+function enterLab() {
+  const name = document.getElementById('nameInput').value.trim() || 'البطل';
+  const image = characterAssets[currentGender][currentOutfit];
+
+  // حفظ الاسم والصورة المختارة
+  localStorage.setItem('playerName', name);
+  localStorage.setItem('playerImage', image);
+
+  // الانتقال إلى الخريطة
+  window.location.href = 'levels_map.html.html';
+}
+    updateCharacterView();
+  </script>
+
+</body>
+</html>

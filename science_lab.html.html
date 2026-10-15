@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>رحلة في مختبر العلوم - التعلم المعكوس</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;900&display=swap" rel="stylesheet">
+
+  <style>
+
+    * {
+
+      box-sizing: border-box;
+
+      margin: 0;
+
+      padding: 0;
+
+      user-select: none;
+
+    }
+
+
+
+    body, html {
+
+      width: 100%;
+
+      height: 100%;
+
+      overflow: hidden;
+
+      font-family: 'Tajawal', sans-serif;
+
+    }
+
+
+
+    .lab-screen {
+
+      position: relative;
+
+      width: 100vw;
+
+      height: 100vh;
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      padding: 15px 20px 30px 20px;
+
+      background: linear-gradient(rgba(15, 23, 42, 0.25), rgba(15, 23, 42, 0.45)),
+
+                  url('https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTMXHZpH60gq6z5afijeqol3aNny0H-XmG6dNM7sKCfLLS8rzVbzzGiuCtlv0MPSft34BaN7iYfMASbAY0') center/cover no-repeat;
+
+      transition: background 0.5s ease;
+
+    }
+
+
+
+    /* إنزال مربع المستوى لأسفل لتفادي الحافة العلوية */
+
+    .level-badge-header {
+
+      position: absolute;
+
+      top: 55px; /* تم إنزاله بوضوح لأسفل */
+
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      z-index: 50;
+
+      background: rgba(15, 23, 42, 0.95);
+
+      border: 3px solid #38bdf8;
+
+      padding: 8px 30px;
+
+      border-radius: 25px;
+
+      color: #38bdf8;
+
+      font-size: 1.2rem;
+
+      font-weight: 900;
+
+      box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      white-space: nowrap;
+
+    }
+
+
+
+    /* زر الخريطة */
+
+    .btn-home {
+
+      position: absolute;
+
+      top: 25px;
+
+      right: 35px;
+
+      z-index: 50;
+
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+
+      color: #fff;
+
+      border: 3px solid #fef3c7;
+
+      padding: 8px 20px;
+
+      border-radius: 20px;
+
+      font-size: 1.1rem;
+
+      font-weight: 900;
+
+      cursor: pointer;
+
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      transition: all 0.2s ease;
+
+    }
+
+
+
+    .btn-home:hover {
+
+      transform: translateY(-3px);
+
+      background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+
+    }
+
+
+
+    /* طبقة إنذار الخطر للمستوى الرابع */
+
+    .alarm-overlay {
+
+      position: absolute;
+
+      top: 0;
+
+      left: 0;
+
+      width: 100vw;
+
+      height: 100vh;
+
+      background: rgba(239, 68, 68, 0);
+
+      pointer-events: none;
+
+      z-index: 15;
+
+      transition: background 0.5s ease;
+
+    }
+
+
+
+    .alarm-active .alarm-overlay {
+
+      background: rgba(239, 68, 68, 0.35);
+
+      animation: redFlash 0.8s infinite alternate;
+
+    }
+
+
+
+    @keyframes redFlash {
+
+      from { background: rgba(239, 68, 68, 0.2); }
+
+      to { background: rgba(239, 68, 68, 0.5); }
+
+    }
+
+
+
+    .lab-stage {
+
+      position: relative;
+
+      width: 100%;
+
+      max-width: 950px;
+
+      flex: 1;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: flex-end;
+
+      padding-bottom: 15px;
+
+      z-index: 10;
+
+    }
+
+
+
+    .teacher-zone {
+
+      display: flex;
+
+      align-items: flex-end;
+
+      margin-left: 100px; 
+
+    }
+
+
+
+    .teacher-container {
+
+      width: 200px;
+
+      height: 360px;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: flex-end;
+
+      filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+
+    }
+
+
+
+    .teacher-container img {
+
+      max-width: 100%;
+
+      max-height: 100%;
+
+      object-fit: contain;
+
+    }
+
+
+
+    .students-zone {
+
+      display: flex;
+
+      align-items: flex-end;
+
+      margin-right: 100px; 
+
+    }
+
+
+
+    .student-card {
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+
+    }
+
+
+
+    .nametag-small {
+
+      background: #f59e0b;
+
+      color: #fff;
+
+      border: 2px solid #fff;
+
+      padding: 4px 15px;
+
+      border-radius: 12px;
+
+      font-size: 0.95rem;
+
+      font-weight: 900;
+
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+
+      margin-bottom: 8px;
+
+    }
+
+
+
+    .student-container {
+
+      width: 190px;
+
+      height: 340px;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: flex-end;
+
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,0.5));
+
+    }
+
+
+
+    .student-container img {
+
+      max-width: 100%;
+
+      max-height: 100%;
+
+      object-fit: contain;
+
+    }
+
+
+
+    /* مربع الحوار */
+
+    .dialogue-dock {
+
+      z-index: 25;
+
+      width: 92%;
+
+      max-width: 950px;
+
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+
+      border: 5px solid #38bdf8;
+
+      border-radius: 35px;
+
+      padding: 20px 30px;
+
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 15px;
+
+      margin-bottom: 10px;
+
+    }
+
+
+
+    .dialogue-top {
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 20px;
+
+    }
+
+
+
+    .speaker-badge {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      background: #0284c7;
+
+      padding: 8px 18px;
+
+      border-radius: 20px;
+
+      border: 2px solid #e0f2fe;
+
+      color: #fff;
+
+      font-weight: 900;
+
+      font-size: 1.2rem;
+
+      white-space: nowrap;
+
+    }
+
+
+
+    .dialogue-text {
+
+      color: #f8fafc;
+
+      font-size: 1.2rem;
+
+      font-weight: 700;
+
+      flex: 1;
+
+      line-height: 1.6;
+
+    }
+
+
+
+    /* إجبار الصف على العكس لنقل الأزرار لأقصى الشمال تلقائياً */
+
+    .actions-row {
+
+      display: flex;
+
+      flex-direction: row-reverse;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      border-top: 2px solid rgba(255,255,255,0.1);
+
+      padding-top: 12px;
+
+    }
+
+
+
+    /* أزرار الشمال (التالي والسابق) */
+
+    .nav-buttons {
+
+      display: flex;
+
+      gap: 15px;
+
+      align-items: center;
+
+      flex-direction: row-reverse; /* السهم للداخل */
+
+    }
+
+
+
+    .btn-video {
+
+      background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+
+      color: #fff;
+
+      font-size: 1.1rem;
+
+      font-weight: 900;
+
+      padding: 10px 25px;
+
+      border: 3px solid #ddd6fe;
+
+      border-radius: 25px;
+
+      cursor: pointer;
+
+      box-shadow: 0 5px 0 #4c1d95;
+
+      display: none;
+
+      transition: all 0.1s;
+
+    }
+
+
+
+    .btn-video:hover {
+
+      transform: translateY(-2px);
+
+      background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
+
+    }
+
+
+
+    .btn-prev {
+
+      background: linear-gradient(180deg, #64748b 0%, #475569 100%);
+
+      color: #fff;
+
+      font-size: 1.2rem;
+
+      font-weight: 900;
+
+      padding: 10px 25px;
+
+      border: 3px solid #cbd5e1;
+
+      border-radius: 30px;
+
+      cursor: pointer;
+
+      box-shadow: 0 5px 0 #334155;
+
+      transition: all 0.1s;
+
+    }
+
+
+
+    .btn-prev:hover {
+
+      transform: translateY(-2px);
+
+      background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+
+    }
+
+
+
+    .btn-next {
+
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+
+      color: #fff;
+
+      font-size: 1.3rem;
+
+      font-weight: 900;
+
+      padding: 10px 35px;
+
+      border: 4px solid #bbf7d0;
+
+      border-radius: 30px;
+
+      cursor: pointer;
+
+      box-shadow: 0 6px 0 #14532d;
+
+      transition: all 0.1s;
+
+      white-space: nowrap;
+
+    }
+
+
+
+    .btn-next:hover {
+
+      transform: translateY(-2px);
+
+      background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+
+    }
+
+
+
+    .video-modal {
+
+      position: fixed;
+
+      top: 0; left: 0; width: 100vw; height: 100vh;
+
+      background: rgba(0,0,0,0.8);
+
+      z-index: 100;
+
+      display: none;
+
+      justify-content: center;
+
+      align-items: center;
+
+    }
+
+    .video-content {
+
+      background: #1e293b;
+
+      padding: 20px;
+
+      border-radius: 20px;
+
+      border: 4px solid #38bdf8;
+
+      text-align: center;
+
+      max-width: 600px;
+
+      width: 90%;
+
+    }
+
+    .close-video {
+
+      background: #ef4444;
+
+      color: #fff;
+
+      border: none;
+
+      padding: 8px 20px;
+
+      font-weight: bold;
+
+      border-radius: 10px;
+
+      cursor: pointer;
+
+      margin-top: 15px;
+
+    }
+
+/* كارت مهمة الإنقاذ والهروب */
+.rescue-card {
+  position: absolute;
+  z-index: 40;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(850px, 88vw);
+  padding: 35px 40px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(145deg, #172554, #0f172a);
+  border: 4px solid #f59e0b;
+  border-radius: 28px;
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.5),
+              0 15px 45px rgba(0, 0, 0, 0.65);
+  display: none;
+}
+
+.rescue-card h2 {
+  color: #fbbf24;
+  font-size: clamp(1.5rem, 3vw, 2.3rem);
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.rescue-card p {
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  line-height: 2;
+  margin-bottom: 25px;
+}
+
+.rescue-card .rescue-footer {
+  padding-top: 18px;
+  border-top: 2px solid rgba(255,255,255,0.2);
+  color: #fde68a;
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-weight: 900;
+  line-height: 1.8;
+}
+
+.rescue-card .rescue-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  animation: rescuePulse 0.8s infinite alternate;
+}
+
+@keyframes rescuePulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.12); }
+}
+
+/* إظهار الكارت مع استمرار الإنذار */
+.lab-screen.rescue-active .rescue-card {
+  display: block;
+}
+
+.lab-screen.rescue-active .dialogue-dock {
+  display: none;
+}
+
+.lab-screen.rescue-active .lab-stage {
+  filter: brightness(0.65);
+}
+
+@media (max-width: 600px) {
+  .rescue-card {
+    width: 92vw;
+    padding: 25px 20px;
+  }
+}
+/* إخفاء مربع المستوى أثناء شاشة الإنذار فقط */
+.lab-screen.rescue-active ~ .level-badge-header {
+  display: none;
+}
+  </style>
+
+</head>
+
+<body id="bodyTag">
+
+
+
+  <button class="btn-home" onclick="goHome()">🏠 الخريطة</button>
+
+
+
+  <div class="level-badge-header">
+
+    <span id="levelIconHeader">💪</span>
+
+    <span id="levelTitleHeader">المستوى الأول: العظام والعضلات وسر الحركة</span>
+
+  </div>
+
+
+
+  <div class="lab-screen" id="labScreen">
+
+<div class="rescue-card" id="rescueCard">
+  <div class="rescue-icon">🚨</div>
+
+  <h2>مهمة الإنقاذ والهروب من المعمل</h2>
+
+  <p>
+    عزيزي البطل، لقد أنهيت الشرح بنجاح، ولكن المعمل الآن في خطر!
+    تم إغلاق الأبواب تلقائياً.
+    هل أنت جاهز للتحول إلى محقق علوم وحل الألغاز؟
+  </p>
+
+  <div class="rescue-footer">
+    ⏳ تُفتح الألغاز والمهمة أثناء الحصة مع المعلمة!
+  </div>
+</div>
+
+    
+
+    <div class="alarm-overlay"></div>
+
+
+
+    <div class="lab-stage">
+
+      <div class="teacher-zone">
+
+        <div class="teacher-container">
+
+          <img src="images/teacher.png" alt="المعلمة">
+
+        </div>
+
+      </div>
+
+
+
+      <div class="students-zone">
+
+        <div class="student-card">
+
+          <div class="nametag-small" id="playerNametag">منة (أنت)</div>
+
+          <div class="student-container">
+
+            <img id="playerAvatar" src="images/girl_lab.png" alt="اللاعب">
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- مربع الحوار -->
+
+    <div class="dialogue-dock">
+
+      <div class="dialogue-top">
+
+        <div class="speaker-badge">
+
+          <span>👩‍🏫</span>
+
+          <span>المعلمة</span>
+
+        </div>
+
+        <div class="dialogue-text" id="dialogueText">
+
+          جاري التحميل...
+
+        </div>
+
+      </div>
+
+
+
+      <div class="actions-row">
+
+        <!-- أزرار التالي والسابق ستكون أقصى الشمال بناءً على flex-direction: row-reverse -->
+
+        <div class="nav-buttons">
+
+          <button class="btn-next" onclick="nextDialogue()" id="nextBtn">⬅️ التالي</button>
+
+          <button class="btn-prev" id="prevBtn" onclick="prevDialogue()">السابق ➔</button>
+
+        </div>
+
+
+
+        <button class="btn-video" id="videoBtn" onclick="openVideo()">📺 مشاهدة فيديو الشرح</button>
+
+      </div>
+
+    </div>
+
+
+
+  </div>
+
+
+
+  <!-- نافذة الفيديو المنبثقة -->
+
+  <div class="video-modal" id="videoModal">
+
+    <div class="video-content">
+
+      <h3 style="color:#38bdf8; margin-bottom:10px;">فيديو توضيحي تعليمي</h3>
+
+     
+<div style="background:#0f172a; height:250px; display:flex; justify-content:center; align-items:center; border-radius:10px; overflow:hidden;">
+  <video id="lessonVideo" controls playsinline
+         style="width:100%; height:100%; object-fit:contain; border-radius:10px;">
+  </video>
+</div>
+
+      <button class="close-video" onclick="closeVideo()">إغلاق الفيديو ✖</button>
+
+    </div>
+
+  </div>
+
+
+
+  <script>
+
+    window.onload = function() {
+
+      const savedImage = localStorage.getItem('playerImage');
+
+      const savedName = localStorage.getItem('playerName');
+
+      if(savedImage) document.getElementById('playerAvatar').src = savedImage;
+
+      if(savedName) document.getElementById('playerNametag').textContent = savedName + " (أنت)";
+
+      
+
+      updateView();
+
+    };
+
+
+
+    const currentLevel = parseInt(localStorage.getItem('currentLevel') || 1);
+
+
+
+    const levelHeaders = {
+
+      1: { title: "المستوى الأول: العظام والعضلات وسر الحركة", icon: "💪" },
+
+      2: { title: "المستوى الثاني: تركيب العظام والمفاصل", icon: "🦴" },
+
+      3: { title: "المستوى الثالث: انقباض وانبساط العضلات", icon: "🤝" },
+
+      4: { title: "المستوى الرابع: هياكل الحيوانات وحركتها", icon: "🐅" }
+
+    };
+
+
+
+    const levelsData = {
+
+      1: [
+
+        { text: "أهلاً بكم يا أبطال في درس اليوم!", hasVideo: false },
+
+        { text: "النهارده هنتعرف على عظام جسمنا وازاي بنتحرك.", hasVideo: false },
+
+        { text: "جسم الإنسان بيتكون من عظام صلبة تديه الدعامة والقوة، وعضلات قوية ومرنة تغطي العظام وتساعدنا على الحركة بكل سهولة.", hasVideo: true },
+
+        { text: "تعرفو أن العظام لوحدها متعرفش تتحرك؟ وهنا بقي يجي دور العضلات الي بترتبط بالعظام وتشتغل زي محركات تسحبها عشان يحصل حركة للجسم.", hasVideo: true },
+
+        { text: "وعشان تتحرك العضلة، لازم تعمل عملية الانقباض؛ ولما تنقبض العضلة بتبقي أقصر وأكثر صلابة عشان تبقي قوية .", hasVideo: true },
+
+        { text: "جربو تطبقو ده علي ذراعكو وشوفو ايه هيحصل:\n- لما نتني ذراعنا : تنقبض العضلة الأمامية وتنبسط  العضله الخلفية.\n- ولما نفرد ذراعنا : تنبسط العضله الأمامية وتنقبض العضلة الخلفية.", hasVideo: true }
+
+      ],
+
+      2: [
+
+        { text: "بتتميز العظام بأنها صلبة جداً، وليها دور أساسي ومهم في دعم الجسم وإعطائه الثبات، ده غير انه بيحمي أعضاء الجسم الحيوية زي حماية المخ داخل الجمجمة، وحماية القلب والرئتين.", hasVideo: true },
+
+        { text: "وعشان تتحرك أجزاء جسمنا بسهولة، عندنا المفْصَل: وهو المكان الي بتلتقي فيه عضمتين أو أكثر. وبتحتوي المفاصل على غضاريف بتساعد على تقليل احتكاك العظام وتحميها من التآكل أثناء الحركة.", hasVideo: true },
+
+        { text: " افتكرو دايماً أن حركة الجسم بتختلف باختلاف نوع المفصل؛ يعني مثلا مفصل الكتف بيتحرك في كل الاتجاهات، غير مفصل الركبة!", hasVideo: true }
+
+      ],
+
+      3: [
+
+        { text: "ودلوقتي يا أبطال، بعد ما اتعرفنا على الهيكل العظمي ، تعالو نشوف الطرف الثاني المسؤول عن الحركة:والي هي العضلات! العظام لوحدها متعرفش تتحرك، وهنا تيجي قوة العضلات المرنة الي بترتبط بالعظام وتسحبها وتخلينا نتحرك بكل سهولة.", hasVideo: true },
+
+        { text: "واوعو تنسو أبداً أن العضلات بتشتغل دايماً  في أزواج؛ يعني اتنين بيشتغلو سوا لما تنقبض عضله عشان تسحب العضم، تنبسط التانية عشان تسمح بالحركة بسهولة ونقدر نتحرك !", hasVideo: true }
+
+      ],
+
+      4: [
+
+        { text: "دلوقتي يا أبطال بعد ما اتعرفنا على العظام اللي في جسمنا وسر الحركة بتاعتنا.. تفتكروا الحيوانات بتتحرك إزاي؟", hasVideo: false },
+
+        { text: "كتير من الحيوانات باستخدام العظام والعضلات زي الإنسان. وفي تشابه كبير في الهياكل العظمية بين الإنسان والحيوانات.", hasVideo: true },
+
+        { text: "بس طبعا بتختلف أشكال العظام وطوالها وطريقة اتصال العضلات حسب طريقة حياة الحيوان وحركته. عشان تساعد  كل كائن انه يتحرك صح.", hasVideo: false},
+
+        { text: "يعني مثلاً  الهيكل العظمي للحيوانات الي بتمشي غير الهيكل العظمي للحيوانات الي بتنط أو بتطير!", hasVideo: true },
+
+        { text: "وبكده نكون خلصنا رحلة الشرح بتاعتنا انهارده ...", hasVideo: false },
+  { text: "ايه الصوت ده؟ده إنذار! 🚨", hasVideo: false, alarm: true }
+      ]
+
+    };
+
+
+
+
+let steps = levelsData[currentLevel] || levelsData[1];
+
+let currentStep = 0;
+let videoWatched = false;
+let audioFinished = false;
+const completedSteps = new Set();
+
+
+    function updateView() {
+
+      const headerInfo = levelHeaders[currentLevel] || levelHeaders[1];
+
+      document.getElementById('levelTitleHeader').textContent = headerInfo.title;
+
+      document.getElementById('levelIconHeader').textContent = headerInfo.icon;
+
+
+
+      const step = steps[currentStep];
+
+      document.getElementById('dialogueText').textContent = step.text;
+    dialogueAudio.pause();
+dialogueAudio.currentTime = 0;
+
+const audioStarts = { 1: 1, 2: 7, 3: 10, 4: 12 };
+const audioNumber = audioStarts[currentLevel] + currentStep;
+dialogueAudio.src = `audio/${audioNumber}.mp3`;
+
+dialogueAudio.play().catch(error => console.log(error));
+     
+
+      const videoBtn = document.getElementById('videoBtn');
+
+      videoBtn.style.display = step.hasVideo ? 'block' : 'none';
+
+
+
+      const prevBtn = document.getElementById('prevBtn');
+
+      if (currentStep > 0) {
+
+        prevBtn.style.visibility = 'visible';
+
+        prevBtn.style.pointerEvents = 'auto';
+
+      } else {
+
+        prevBtn.style.visibility = 'hidden';
+
+        prevBtn.style.pointerEvents = 'none';
+
+      }
+
+
+
+      const labScreen = document.getElementById('labScreen');
+
+      const nextBtn = document.getElementById('nextBtn');
+
+      
+
+  
+
+const levelBadge = document.querySelector('.level-badge-header');
+
+if (step.alarm) {
+  labScreen.classList.add('alarm-active');
+  labScreen.classList.add('rescue-active');
+  levelBadge.style.display = 'none';
+  nextBtn.textContent = "العودة إلى الخريطة 🗺️";
+} else {
+  labScreen.classList.remove('alarm-active');
+  labScreen.classList.remove('rescue-active');
+  levelBadge.style.display = 'flex';
+  nextBtn.textContent = "⬅️ التالي";
+}
+}
+
+function nextDialogue() {
+  if (steps[currentStep].alarm) {
+    goHome();
+    return;
+  }
+
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    updateView();
+  } else {
+    let unlockedLevel = parseInt(
+      localStorage.getItem('unlockedLevel') || 1
+    );
+
+    if (currentLevel >= unlockedLevel && unlockedLevel < 4) {
+      localStorage.setItem('unlockedLevel', currentLevel + 1);
+    }
+
+    alert("🎉 مبروك! لقد أنهيت هذا المستوى بنجاح!");
+    window.location.href = 'levels_map.html.html';
+  }
+}
+
+
+
+function prevDialogue() {
+  if (currentStep > 0) {
+    currentStep--;
+    updateView();
+  }
+}
+
+function goHome() {
+  window.location.href = "./levels_map.html.html";
+}
+
+
+function openVideo() {
+  const videoMap = {
+    1: { 2: 1, 3: 2, 4: 3, 5: 4 },
+    2: { 0: 5, 1: 6, 2: 7 },
+    3: { 0: 8, 1: 9 },
+    4: { 1: 10, 3: 11 }
+  };
+
+  const videoNumber = videoMap[currentLevel]?.[currentStep];
+
+  if (!videoNumber) return;
+
+  const video = document.getElementById('lessonVideo');
+  video.src = `videos/${videoNumber}.mp4`;
+  video.load();
+
+  document.getElementById('videoModal').style.display = 'flex';
+  video.play().catch(error => console.log(error));
+}
+
+    
+    function closeVideo() {
+      document.getElementById('videoModal').style.display = 'none';
+    }
+
+
+const dialogueAudio = new Audio();
+
+  </script>
+
+</body>
+
+</html>
